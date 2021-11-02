@@ -3,23 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-void printOccurrencesOfAZ(char *text);
-
-int hexToInt(char c){
-    if (c >= 97)
-        c = c - 32;
-    int first = c / 16 - 3;
-    int second = c % 16;
-    int result = first * 10 + second;
-    if (result > 9) result--;
-    return result;
-}
-
-int hexToAscii(char c, char d){
-    int high = hexToInt(c) * 16;
-    int low = hexToInt(d);
-    return high+low;
-}
+#include "./include/oppg2.h"
 
 int main(int argc, char *argv[]) {
 
@@ -61,6 +45,22 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 
+}
+
+int hexToInt(char c) {
+    if (c >= 97)
+        c = c - 32;
+    int first = c / 16 - 3;
+    int second = c % 16;
+    int result = first * 10 + second;
+    if (result > 9) result--;
+    return result;
+}
+
+int hexToAscii(char c, char d) {
+    int high = hexToInt(c) * 16;
+    int low = hexToInt(d);
+    return high+low;
 }
 
 void printOccurrencesOfAZ(char *text) {
