@@ -4,22 +4,21 @@
 
 #include "./include/oppg3.h"
 
-static NODE *createNode(char *szName, int iQuantity, int iPrice)
-{
+static NODE *createNode(char *szName, int iQuantity, float fPrice) {
     NODE *p = malloc(sizeof(NODE));
     if (p != NULL) {
         p->iQuantity = iQuantity;
-        //p->szName = strdup(szName);
-        strcpy(p->szName, szName);
-        p->fPrice = iPrice;
+        p->szName = strdup(szName);
+        //strcpy(p->szName, szName);
+        //memcpy(p->szName, szName, sizeof(szName));
+        p->fPrice = fPrice;
     }
     return p;
 }
 
-int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, int iPrice)
-{
+int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, float fPrice) {
     int iRc = ERROR;
-    NODE *pThis = createNode(szName, iQuantity, iPrice);
+    NODE *pThis = createNode(szName, iQuantity, fPrice);
 
     if (pThis != NULL) {
 
@@ -55,7 +54,6 @@ int deleteLastNode(LISTHEAD *pListHead) {
     }
 
     return iRc;
-
 }
 
 int deleteNodeByName(LISTHEAD *pListHead, char *szName) {
@@ -63,7 +61,8 @@ int deleteNodeByName(LISTHEAD *pListHead, char *szName) {
 
     NODE *p = pListHead->pHead;
     while(p != NULL) {
-        if(strcmp(tolower(p->szName), tolower(szName)) == 0) {
+        NODE *pTmp = p;
+        if(strncmp(p->szName, szName, sizeof(szName)) == 0) {
             if (pListHead->pHead == p) {
                 pListHead->pHead = p->pNext;
             } else if (pListHead->pTail == p) {
@@ -76,10 +75,27 @@ int deleteNodeByName(LISTHEAD *pListHead, char *szName) {
             }
             free(p);
         }
-        p = p->pNext;
+        p = pTmp->pNext;
         iRc = OK;
     }
 
     return iRc;
+}
 
+float sumOfGoods(LISTHEAD *pListHead) {
+    
+    NODE *p = pListHead->pHead;
+    float sum = 0;
+    int i = 1;
+
+    while(p != NULL) {
+        sum += p->fPrice * p->iQuantity;
+        p = p->pNext;
+    }
+
+    return sum;
+}
+
+void printReceipt(LISTHEAD *pListHead) {
+    printf("HER ER KVITTERING FORMATERT PENT");
 }

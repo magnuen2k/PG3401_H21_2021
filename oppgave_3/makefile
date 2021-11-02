@@ -10,7 +10,7 @@ OBJDIR = obj
 _DEPS = oppg3.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = oppg3.o
+_OBJS = oppg3.o list.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 

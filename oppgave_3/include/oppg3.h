@@ -18,9 +18,10 @@ typedef struct _LISTHEAD {
    NODE *pTail;
 } LISTHEAD;
 
-int addToList(LISTHEAD *pListHead, char *pvName, int pvAge, char *pvMunicipality, int iSze);
-//NODE *getElement(LISTHEAD *pListHead, int n);
-//int getElementByName(LISTHEAD *pListHead, char *szName);
-//void deleteByName(LISTHEAD *pListHead, char *szName);
+int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, float fPrice);
+int deleteLastNode(LISTHEAD *pListHead);
+int deleteNodeByName(LISTHEAD *pListHead, char *szName);
+float sumOfGoods(LISTHEAD *pListHead);
+void printReceipt(LISTHEAD *pListHead);
 
 #endif // ndef _LINKEDLIST_H_
