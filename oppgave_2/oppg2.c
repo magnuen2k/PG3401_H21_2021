@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 void printOccurrencesOfAZ(char *text);
 
-int hex_to_int(char c){
+int hexToInt(char c){
     if (c >= 97)
         c = c - 32;
     int first = c / 16 - 3;
@@ -14,44 +15,44 @@ int hex_to_int(char c){
     return result;
 }
 
-int hex_to_ascii(char c, char d){
-    int high = hex_to_int(c) * 16;
-    int low = hex_to_int(d);
+int hexToAscii(char c, char d){
+    int high = hexToInt(c) * 16;
+    int low = hexToInt(d);
     return high+low;
 }
 
 int main(int argc, char *argv[]) {
 
     FILE *f = NULL, *ft;
-    unsigned char *byBuffer = NULL;
+    unsigned char *byInBuffer = NULL;
+    unsigned char *byOutBuffer = NULL;
     long lSize = 0, lBytesRead;
 
     f = fopen ("data.dta", "r");
     if (f != NULL) {
         if (fseek(f, 0, SEEK_END) == 0) {
             lSize = ftell(f);
-            printf ("Size of file is %ld bytes.\n", lSize);
+            lSize -= lSize % 2;
             rewind(f);
 
-            byBuffer = malloc (lSize);
-            if (byBuffer != NULL) {
+            byInBuffer = malloc(lSize);
+            byOutBuffer = malloc(lSize / 2 + 1);
+            byOutBuffer[lSize / 2] = 0;
+
+            if (byInBuffer != NULL) {
                 ft = fopen("text.txt", "w");
                 if(ft != NULL) {
-                    lBytesRead = fread (byBuffer, sizeof(unsigned char), lSize, f);
+                    lBytesRead = fread (byInBuffer, sizeof(unsigned char), lSize, f);
                     if (lBytesRead == lSize) {
                         int i;
-                        char buf = 0;
-                        for(i = 0; i < strlen(byBuffer); i++){
-                            if(i % 2 != 0){
-                                fprintf(ft, "%c", hex_to_ascii(buf, byBuffer[i]));
-                            } else{
-                                buf = byBuffer[i];
-                            }
+                        for (i = 0; i < lSize; i+=2){
+                            byOutBuffer[i/2] = hexToAscii(byInBuffer[i], byInBuffer[i + 1]);
                         }
-                        printOccurrencesOfAZ(byBuffer);
+                        fprintf(ft, "%s", byOutBuffer);
+                        printOccurrencesOfAZ(byOutBuffer);
                     }
                 }
-                free (byBuffer);
+                free (byInBuffer);
                 fclose(ft);
             }
         }
@@ -63,5 +64,24 @@ int main(int argc, char *argv[]) {
 }
 
 void printOccurrencesOfAZ(char *text) {
-    printf("%s", text);
+
+    printf("Forekomster per bokstav: \n");
+
+    char szAlphabet[] = "abcdefghijklmnopqrstuwxyz";
+    char *szInput;
+
+    int i;
+
+    for(i = 0; i < strlen(szAlphabet); i++) {
+
+        int count = 0;
+
+        for(szInput = text; *szInput != 0; szInput++) {
+            if (tolower(*szInput) == szAlphabet[i]) {
+                count++;
+            }
+        }
+
+        printf("%c: %d \n", szAlphabet[i], count);
+    }
 }
