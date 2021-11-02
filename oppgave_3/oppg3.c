@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
         printf("#5. Se kvittering\n\r");
         printf("#6. Avslutte\n\r");
 
+        // For development
         printList(pListHead->pHead);
 
         input = getchar() - '0';
@@ -37,9 +38,21 @@ int main(int argc, char *argv[]) {
         
         switch(input){
             case 1:
+                printf("------------------------------------ \r\n");
+                printf("Registrer ny vare med navn, antall og pris per vare: \r\n");
                 printf("Legg til navn på vare: \r\n");
-                if(getStringFromUser(szBuffer, sizeof(szBuffer)) == OK && getIntFromUser(&iQuantity) == OK && getFloatFromUser(&fPrice) == OK) {
-                    addToList(pListHead, szBuffer, iQuantity, fPrice);
+                if(getStringFromUser(szBuffer, sizeof(szBuffer)) == OK) {
+                    printf("Hvor mange: \n");
+                    if(getIntFromUser(&iQuantity) == OK) {
+                        printf("Pris per vare: \n");
+                        if(getFloatFromUser(&fPrice) == OK) {
+                            addToList(pListHead, szBuffer, iQuantity, fPrice);
+                        } else {
+                            printf("Registrering avbrutt! \n");
+                        }
+                    } else {
+                        printf("Registrering avbrutt! \n");
+                    }
                 } else {
                     printf("Registrering avbrutt! \n");
                 }

@@ -106,6 +106,17 @@ float sumOfGoods(LISTHEAD *pListHead) {
 }
 
 void printReceipt(LISTHEAD *pListHead) {
-    printf("HER ER KVITTERING FORMATERT PENT");
+    printf("------------------------------------ \n");
+    printf("Kvittering på varer: \n");
+    int i = 0;
+    NODE *p = pListHead->pHead;
+    while (p != NULL) {
+        printf ("%d: Navn: %s\n", ++i, p->szName);
+        printf ("%d: Antall: %d\n", i, p->iQuantity);
+        printf ("%d: Pris per vare: %f\n", i, p->fPrice);
+        p = p->pNext;
+    }
+    printf("Total sum: %f \n", sumOfGoods(pListHead));
+    printf("------------------------------------ \n");
 }
 
