@@ -19,6 +19,7 @@ typedef struct _LISTHEAD {
 } LISTHEAD;
 
 int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, float fPrice);
+void deleteNode(LISTHEAD *pListHead, NODE *pNode);
 int deleteLastNode(LISTHEAD *pListHead);
 int deleteNodeByName(LISTHEAD *pListHead, char *szName);
 float sumOfGoods(LISTHEAD *pListHead);

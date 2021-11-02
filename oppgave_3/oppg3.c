@@ -5,16 +5,19 @@
 #include "./include/oppg3.h"
 
 static void printList (NODE *pThis);
+int getStringFromUser(char *szBuffer, int iSize);
+int getIntFromUser(int *piBuffer);
+int getFloatFromUser(float *pfBuffer);
 
 int main(int argc, char *argv[]) {
 
     LISTHEAD *pListHead = malloc(sizeof(LISTHEAD));
 
-    int iRc = OK;
-
     int input;
 
     char szBuffer[255] = {0};
+    int iQuantity;
+    float fPrice;
 
     while(input != 6) {
 
@@ -26,6 +29,8 @@ int main(int argc, char *argv[]) {
         printf("#5. Se kvittering\n\r");
         printf("#6. Avslutte\n\r");
 
+        printList(pListHead->pHead);
+
         input = getchar() - '0';
 
         while(getchar() != '\n');
@@ -33,8 +38,11 @@ int main(int argc, char *argv[]) {
         switch(input){
             case 1:
                 printf("Legg til navn på vare: \r\n");
-                fgets(szBuffer, 255, stdin);
-                addToList(pListHead, szBuffer, 8, 200);
+                if(getStringFromUser(szBuffer, sizeof(szBuffer)) == OK && getIntFromUser(&iQuantity) == OK && getFloatFromUser(&fPrice) == OK) {
+                    addToList(pListHead, szBuffer, iQuantity, fPrice);
+                } else {
+                    printf("Registrering avbrutt! \n");
+                }
                 break;
             case 2:
                 printf("Angrer..\r\n");
@@ -42,8 +50,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 3:
                 printf("Navn på vare du vil fjerne: \r\n");
-                fgets(szBuffer, 255, stdin);
-                deleteNodeByName(pListHead, szBuffer);
+                if(getStringFromUser(szBuffer, sizeof(szBuffer)) == OK) {
+                    deleteNodeByName(pListHead, szBuffer);
+                }
                 break;
             case 4:
                 printf("Total sum for varer i listen: \r\n");
@@ -63,12 +72,48 @@ int main(int argc, char *argv[]) {
 
     }
 
+    while(pListHead->pHead) {
+        deleteNode(pListHead, pListHead->pHead);
+    }
 
-    // Just to make sure list is correct in development
-    printList(pListHead->pHead);
-
+    free(pListHead);
 
     return 0;
+}
+
+int getStringFromUser(char *szBuffer, int iSize) {
+    if(fgets(szBuffer, iSize, stdin) != NULL) {
+        szBuffer[strlen(szBuffer) - 1] = 0;
+        if(strlen(szBuffer) > 0) {
+            return OK;
+        }
+    }
+
+    return ERROR;
+}
+
+int getIntFromUser(int *piBuffer) {
+    char szBuffer[10] = {0};
+    int iRc = getStringFromUser(szBuffer, sizeof(szBuffer));
+    
+    if(iRc == OK) {
+        *piBuffer = atoi(szBuffer);
+        return OK;
+    }
+
+    return iRc;
+}
+
+int getFloatFromUser(float *pfBuffer) {
+    char szBuffer[10] = {0};
+    int iRc = getStringFromUser(szBuffer, sizeof(szBuffer));
+    
+    if(iRc == OK) {
+        *pfBuffer = atof(szBuffer);
+        return OK;
+    }
+
+    return iRc;
 }
 
 static void printList (NODE *pThis) {
@@ -77,5 +122,4 @@ static void printList (NODE *pThis) {
         printf ("%d: %s\n", ++i, pThis->szName);
         pThis = pThis->pNext;
     }
-    printf ("\n");
 }

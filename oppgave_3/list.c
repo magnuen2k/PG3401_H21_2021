@@ -7,10 +7,10 @@
 static NODE *createNode(char *szName, int iQuantity, float fPrice) {
     NODE *p = malloc(sizeof(NODE));
     if (p != NULL) {
+        p->pNext = NULL;
+        p->pPrev = NULL;
         p->iQuantity = iQuantity;
         p->szName = strdup(szName);
-        //strcpy(p->szName, szName);
-        //memcpy(p->szName, szName, sizeof(szName));
         p->fPrice = fPrice;
     }
     return p;
@@ -28,9 +28,8 @@ int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, float fPrice) {
             iRc = OK;
         }
         else {
-            NODE *pTmp = pListHead->pTail;
-            pTmp->pNext = pThis;
-            pThis->pPrev = pTmp;
+            pThis->pPrev = pListHead->pTail;
+            pListHead->pTail->pNext = pThis;
             pListHead->pTail = pThis;
 
             iRc = OK;
@@ -40,16 +39,37 @@ int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, float fPrice) {
     return iRc;
 }
 
+void deleteNode(LISTHEAD *pListHead, NODE *pNode) {
+    
+    if(pNode->pNext != NULL) {
+        pNode->pNext->pPrev = pNode->pPrev;
+    }
+
+    if(pNode->pPrev != NULL) {
+        pNode->pPrev->pNext = pNode->pNext;
+    }
+
+    if(pNode == pListHead->pHead) {
+        pListHead->pHead = pNode->pNext;
+    }
+
+    if(pNode == pListHead->pTail) {
+        pListHead->pTail = pNode->pPrev;
+    }
+
+    if(pNode->szName != NULL) {
+        free(pNode->szName);
+    }
+
+    free(pNode);
+
+}
+
 int deleteLastNode(LISTHEAD *pListHead) {
     int iRc = ERROR;
 
-    if(pListHead->pTail == NULL) {
-        // empty
-    } else {
-        NODE *pTmp = pListHead->pTail;
-        pTmp->pPrev->pNext = NULL;
-        pListHead->pTail = pTmp->pPrev;
-        free(pTmp);
+    if(pListHead->pTail != NULL) {
+        deleteNode(pListHead, pListHead->pTail);
         iRc = OK;
     }
 
@@ -62,20 +82,10 @@ int deleteNodeByName(LISTHEAD *pListHead, char *szName) {
     NODE *p = pListHead->pHead;
     while(p != NULL) {
         NODE *pTmp = p;
-        if(strncmp(p->szName, szName, sizeof(szName)) == 0) {
-            if (pListHead->pHead == p) {
-                pListHead->pHead = p->pNext;
-            } else if (pListHead->pTail == p) {
-                NODE *pTmp = pListHead->pTail;
-                pTmp->pPrev->pNext = NULL;
-                pListHead->pTail = pTmp->pPrev;
-            } else {
-                p->pPrev->pNext = p->pNext;
-                p->pNext->pPrev = p->pPrev;
-            }
-            free(p);
-        }
         p = pTmp->pNext;
+        if(strcasecmp(pTmp->szName, szName) == 0) {
+            deleteNode(pListHead, pTmp);
+        }
         iRc = OK;
     }
 
@@ -86,7 +96,6 @@ float sumOfGoods(LISTHEAD *pListHead) {
     
     NODE *p = pListHead->pHead;
     float sum = 0;
-    int i = 1;
 
     while(p != NULL) {
         sum += p->fPrice * p->iQuantity;
@@ -99,3 +108,4 @@ float sumOfGoods(LISTHEAD *pListHead) {
 void printReceipt(LISTHEAD *pListHead) {
     printf("HER ER KVITTERING FORMATERT PENT");
 }
+
