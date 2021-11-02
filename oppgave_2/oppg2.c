@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+void printOccurrencesOfAZ(char *text);
+
 int hex_to_int(char c){
     if (c >= 97)
         c = c - 32;
@@ -46,6 +48,7 @@ int main(int argc, char *argv[]) {
                                 buf = byBuffer[i];
                             }
                         }
+                        printOccurrencesOfAZ(byBuffer);
                     }
                 }
                 free (byBuffer);
@@ -57,4 +60,8 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 
+}
+
+void printOccurrencesOfAZ(char *text) {
+    printf("%s", text);
 }
