@@ -67,7 +67,7 @@ void printOccurrencesOfAZ(char *text) {
 
     printf("Forekomster per bokstav: \n");
 
-    char szAlphabet[] = "abcdefghijklmnopqrstuwxyz";
+    char szAlphabet[] = "abcdefghijklmnopqrstuvwxyz";
     char *szInput;
 
     int i;
