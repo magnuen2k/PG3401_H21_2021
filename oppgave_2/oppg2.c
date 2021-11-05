@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
                     if (lBytesRead == lSize) {
                         int i;
                         for (i = 0; i < lSize; i+=2){
-                            byOutBuffer[i/2] = hexToAscii(byInBuffer[i], byInBuffer[i + 1]);
+                            byOutBuffer[i/2] = hexToInt(byInBuffer[i], byInBuffer[i + 1]);
                         }
                         fprintf(ft, "%s", byOutBuffer);
                         printOccurrencesOfAZ(byOutBuffer);
@@ -47,20 +47,22 @@ int main(int argc, char *argv[]) {
 
 }
 
-int hexToInt(char c) {
-    if (c >= 97)
-        c = c - 32;
-    int first = c / 16 - 3;
-    int second = c % 16;
-    int result = first * 10 + second;
-    if (result > 9) result--;
-    return result;
+int hexCharToInt(char c) {
+    int iVal = c;
+    
+    if (iVal < 58) {
+        iVal -= 48;     // 0-9 == 48-57 
+    } else if (iVal < 97) {
+        iVal -= 55;     // A-F == 65-70
+    } else {
+        iVal -= 87;     // a-f == 97-102
+    }
+
+    return (iVal >= 0 && iVal <= 15) ? iVal : 0;
 }
 
-int hexToAscii(char c, char d) {
-    int high = hexToInt(c) * 16;
-    int low = hexToInt(d);
-    return high+low;
+int hexToInt(char c, char d) {
+    return (hexCharToInt(c) << 4) + hexCharToInt(d);
 }
 
 void printOccurrencesOfAZ(char *text) {

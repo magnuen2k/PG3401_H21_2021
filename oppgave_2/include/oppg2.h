@@ -2,7 +2,7 @@
 #define _HEXTOASCII_H_
 
 void printOccurrencesOfAZ(char *text);
-int hexToInt(char c);
-int hexToAscii(char c, char d);
+int hexCharToInt(char c);
+int hexToInt(char c, char d);
 
 #endif // ndef _HEXTOASCII_H_
