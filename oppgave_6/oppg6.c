@@ -4,12 +4,15 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <ctype.h>
 
 #include "./include/oppg6.h"
 
 #ifdef __linux__
 #include <linux/in.h>
 #endif
+
+#define READBUFFERSIZE 10
 
 int main(int argc, char *argv[]) {
 
@@ -24,7 +27,7 @@ int main(int argc, char *argv[]) {
         // Get the allocated buffer for whats sent over the socket
         pszResponseBuffer = getResponse(sockFd);
         
-        printf("%s", pszResponseBuffer);
+        printPage(pszResponseBuffer);
 
         free(pszResponseBuffer);
     }
@@ -37,9 +40,30 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+void printPage(char *pszResponseBuffer) {
+
+    char *pszHeadBuffer = strdup(pszResponseBuffer);
+    char *pszContentLength = strstr(pszHeadBuffer, "Content-Length:");
+
+    if (pszHeadBuffer == NULL) {
+        printf("%s", pszHeadBuffer);
+    } else {
+        // Get the content length
+        pszContentLength += 16;
+        char *pszEol = pszContentLength;
+        while (isdigit(*pszEol)) {
+            pszEol++;
+        }
+        *pszEol = 0;
+        int iContentLength = atoi(pszContentLength);
+        printf("%s", &pszResponseBuffer[strlen(pszResponseBuffer) - iContentLength]);
+    }
+
+}
+
 char* getResponse(int sockFd) {
 
-    char szReadBuffer[5];
+    char szReadBuffer[READBUFFERSIZE];
     char *pszResponseBuffer = NULL;
     int iResponseLength = 0;
 
