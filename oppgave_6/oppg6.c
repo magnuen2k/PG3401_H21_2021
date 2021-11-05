@@ -5,42 +5,94 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+#include "./include/oppg6.h"
+
 #ifdef __linux__
 #include <linux/in.h>
 #endif
 
 int main(int argc, char *argv[]) {
 
-    struct sockaddr_in saAddr = {0};
-    int sockFd, iPort = atoi("80");
-    char szReplyBuffer[1024];
-    char *szRequest = "GET /pg3401/test.html HTTP/1.1\r\nHost: www.eastwillsecurity.com\r\nContent-Type: text/html\r\n\r\n";
+    int sockFd;
+    char *pszResponseBuffer = NULL;
+    char *pszRequest = "GET /pg3401/test.html HTTP/1.1\r\nHost: www.eastwillsecurity.com\r\nContent-Type: text/html\r\n\r\n";
     
+    sockFd = connectToSocket("77.111.240.75", 80);
+
+    if(sendToSocket(sockFd, pszRequest) >= 0) {
+        
+        // Get the allocated buffer for whats sent over the socket
+        pszResponseBuffer = getResponse(sockFd);
+        
+        printf("%s", pszResponseBuffer);
+
+        free(pszResponseBuffer);
+    }
+
+    if (sockFd != -1) {
+        close(sockFd);
+        sockFd = -1;
+    }
+
+    return 0;
+}
+
+char* getResponse(int sockFd) {
+
+    char szReadBuffer[5];
+    char *pszResponseBuffer = NULL;
+    int iResponseLength = 0;
+
+    while((iResponseLength = recv(sockFd, szReadBuffer, sizeof(szReadBuffer) -1, 0)) > 0) {
+        szReadBuffer[iResponseLength] = 0;
+        if(!pszResponseBuffer) {
+            pszResponseBuffer = malloc(iResponseLength + 1);
+            strcpy(pszResponseBuffer, szReadBuffer);
+        } else {
+            pszResponseBuffer = realloc(pszResponseBuffer, strlen(pszResponseBuffer) + iResponseLength + 1);
+            strcat(pszResponseBuffer, szReadBuffer);
+        }
+        
+        // If we recieved less characters than we asked for, then we are done
+        if (iResponseLength < (sizeof(szReadBuffer) - 1)) {
+            break;
+        }
+    };
+
+    return pszResponseBuffer;
+}
+
+int connectToSocket(char *pszNetAddr, int iPort) {
+    struct sockaddr_in saAddr = {0};
+    int sockFd;
+
     sockFd = socket(AF_INET, SOCK_STREAM, 0);
-    if(sockFd < 0) {
+    if (sockFd < 0) {
         printf("Socket failed with error code: %i \n", errno);
+    } else {
+        saAddr.sin_addr.s_addr = inet_addr(pszNetAddr);
+        saAddr.sin_family = AF_INET;
+        saAddr.sin_port = htons(iPort);
+
+        if (connect(sockFd, (struct sockaddr *) &saAddr, sizeof(saAddr)) < 0) {
+            printf("Connection failed with error code: %i\n", errno);
+            close(sockFd);
+            sockFd = -1;
+        }
     }
 
-    saAddr.sin_addr.s_addr = inet_addr("77.111.240.75");
-    saAddr.sin_family = AF_INET;
-    saAddr.sin_port = htons(iPort);
+    return sockFd;
+}
 
-    if(connect(sockFd, (struct sockaddr *) &saAddr, sizeof(saAddr)) < 0) {
-        printf("Connection failed with error code: %i\n", errno);
+int sendToSocket(int sockFd, char *pszRequest) {
+    if (sockFd == -1) {
+        return -1;
     }
 
-    if(send(sockFd, szRequest, strlen(szRequest), 0) < 0) {
+    if (send(sockFd, pszRequest, strlen(pszRequest), 0) < 0) {
         printf("Failed to send request with error code: %i\n", errno);
+        return -1;
     };
-
-    if(recv(sockFd, szReplyBuffer, 1024, 0) < 0) {
-        printf("Failed to get response %i\n", errno);
-    };
-
-    printf("%s", szReplyBuffer);
-
-    close(sockFd);
-    sockFd = -1;
 
     return 0;
 }
