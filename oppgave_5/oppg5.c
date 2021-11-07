@@ -3,78 +3,105 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <string.h>
+#include <semaphore.h>
 
 typedef struct _BUFFER {
     char szBuffer[11];
     FILE *f;
+    sem_t semNewTask;
+    sem_t semTaskCompleted;
+    int iExitProgram;
 } BUFFER;
-
-
-pthread_mutex_t pmMux1 = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t pmMux2 = PTHREAD_MUTEX_INITIALIZER;
 
 void *workerThread(void *buffer) {
     
     BUFFER *pBuf = (BUFFER*) buffer;
-    int i = 0;
-    while(1) {
-        pthread_mutex_lock(&pmMux2);
-        pthread_mutex_lock(&pmMux1);
+    while(pBuf->iExitProgram == 0) {
 
-        // fprintf(pBuf->f, "%s", pBuf->szBuffer);
-        printf("worker thread unlocked #%d\n", i);
+        sem_wait(&pBuf->semNewTask);
 
-        pthread_mutex_unlock(&pmMux1);
-        pthread_mutex_unlock(&pmMux2);
-        i++;
+        if(pBuf->iExitProgram != 0) {
+            break;
+        }
+
+        fprintf(pBuf->f, "%s", pBuf->szBuffer);
+        //fflush(pBuf->f);
+
+        sem_post(&pBuf->semTaskCompleted);
     }
     
+    printf("Worker finished \n");
+
     return NULL;
 }
 
 int main(int argc, char *argv[]) {
 
-    char szUserInput[255] = "";
 
-    size_t nRead;
+    char szUserInput[255] = "";
 
     FILE *f = NULL;
 
-    f = fopen("text.txt", "w");
+    f = fopen("text.txt", "a");
 
     pthread_t tWorker;
 
     // Create buffer
     BUFFER *pBuf = malloc(sizeof(BUFFER));
     pBuf->f = f;
+    pBuf->iExitProgram = 0;
 
-    pthread_mutex_lock(&pmMux1);
+    // Init semaphore
+    sem_init(&pBuf->semNewTask, 0, 0);
+    sem_init(&pBuf->semTaskCompleted, 0, 0);
+
 
     // Start thread
     pthread_create(&tWorker, NULL, workerThread, (void *) pBuf);
 
-    while(1) {
+    while(pBuf->iExitProgram == 0) {
+        printf("Skriv en tekststreng (tast 'quit' for å avlsutte programmet) \n");
         fgets(szUserInput, 255, stdin);
+        if(strlen(szUserInput) > 1) {
+            szUserInput[strlen(szUserInput) - 1] = 0;
 
-        int iStart = 0;
+            if (strcmp(szUserInput, "quit") != 0) {
 
-        while(iStart <= (strlen(szUserInput) - 1)) {
-            strncpy(pBuf->szBuffer, &szUserInput[iStart], 10);
-            pBuf->szBuffer[10] = 0;
-            
-            pthread_mutex_unlock(&pmMux1);
-            
-            iStart += 10;
+                int iStart = 0;
 
-            pthread_mutex_lock(&pmMux2);
-            pthread_mutex_lock(&pmMux1);
-            pthread_mutex_unlock(&pmMux2);
+                while(iStart <= (strlen(szUserInput) - 1)) {
+                    strncpy(pBuf->szBuffer, &szUserInput[iStart], 10);
+                    pBuf->szBuffer[10] = 0;
+                    
+                    sem_post(&pBuf->semNewTask);
+                    sem_wait(&pBuf->semTaskCompleted);
+                    
+                    iStart += 10;
+                    
+                }
+
+                strcpy(pBuf->szBuffer, "\n");
+
+                sem_post(&pBuf->semNewTask);
+                sem_wait(&pBuf->semTaskCompleted);
+
+            } else {
+                pBuf->iExitProgram = 1;
+
+                sem_post(&pBuf->semNewTask);
+            } 
         }
+
     }
 
     // Terminate thread and close file
     pthread_join(tWorker, NULL);
     fclose(f);
+
+    // Destroy semaphores and free allocated buffer
+    sem_destroy(&pBuf->semNewTask);
+    sem_destroy(&pBuf->semTaskCompleted);
+    free(pBuf);
 
     return 0;
 }
