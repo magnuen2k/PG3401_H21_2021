@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     char szUserInput[USERINPUT_BUFFER] = "";
 
     FILE *f = NULL;
-    f = fopen("text.txt", "a");
+    f = fopen("text.txt", "a"); // Can use "w" to start the file as blank each time you run the program
 
     // Create buffer
     BUFFER *pBuf = malloc(sizeof(BUFFER));
