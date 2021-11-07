@@ -5,6 +5,8 @@
 #include <string.h>
 #include <semaphore.h>
 
+#define USERINPUT_BUFFER 4096
+
 typedef struct _BUFFER {
     char szBuffer[11];
     FILE *f;
@@ -18,8 +20,10 @@ void *workerThread(void *buffer) {
     BUFFER *pBuf = (BUFFER*) buffer;
     while(pBuf->iExitProgram == 0) {
 
+        // Wait for signal to execute work
         sem_wait(&pBuf->semNewTask);
 
+        // Exit the while loop if exit variable in struct is not 0
         if(pBuf->iExitProgram != 0) {
             break;
         }
@@ -30,21 +34,16 @@ void *workerThread(void *buffer) {
         sem_post(&pBuf->semTaskCompleted);
     }
     
-    printf("Worker finished \n");
-
     return NULL;
 }
 
 int main(int argc, char *argv[]) {
 
 
-    char szUserInput[255] = "";
+    char szUserInput[USERINPUT_BUFFER] = "";
 
     FILE *f = NULL;
-
     f = fopen("text.txt", "a");
-
-    pthread_t tWorker;
 
     // Create buffer
     BUFFER *pBuf = malloc(sizeof(BUFFER));
@@ -55,43 +54,35 @@ int main(int argc, char *argv[]) {
     sem_init(&pBuf->semNewTask, 0, 0);
     sem_init(&pBuf->semTaskCompleted, 0, 0);
 
+    // Create thread
+    pthread_t tWorker;
 
     // Start thread
     pthread_create(&tWorker, NULL, workerThread, (void *) pBuf);
 
+    printf("Skriv tekststrenger adskilt med ENTER tast (tast 'quit' for å avlsutte programmet): \n");
     while(pBuf->iExitProgram == 0) {
-        printf("Skriv en tekststreng (tast 'quit' for å avlsutte programmet) \n");
-        fgets(szUserInput, 255, stdin);
-        if(strlen(szUserInput) > 1) {
-            szUserInput[strlen(szUserInput) - 1] = 0;
+        char *pszReturn = fgets(szUserInput, USERINPUT_BUFFER, stdin);
 
-            if (strcmp(szUserInput, "quit") != 0) {
+        if (strcmp(szUserInput, "quit\n") != 0) {
 
-                int iStart = 0;
+            int iStart = 0;
 
-                while(iStart <= (strlen(szUserInput) - 1)) {
-                    strncpy(pBuf->szBuffer, &szUserInput[iStart], 10);
-                    pBuf->szBuffer[10] = 0;
-                    
-                    sem_post(&pBuf->semNewTask);
-                    sem_wait(&pBuf->semTaskCompleted);
-                    
-                    iStart += 10;
-                    
-                }
-
-                strcpy(pBuf->szBuffer, "\n");
-
+            while(iStart <= (strlen(szUserInput) - 1)) {
+                strncpy(pBuf->szBuffer, &szUserInput[iStart], 10);
+                pBuf->szBuffer[10] = 0;
+                
                 sem_post(&pBuf->semNewTask);
                 sem_wait(&pBuf->semTaskCompleted);
+                
+                iStart += 10;
+                
+            }
+        } else {
+            pBuf->iExitProgram = 1;
 
-            } else {
-                pBuf->iExitProgram = 1;
-
-                sem_post(&pBuf->semNewTask);
-            } 
-        }
-
+            sem_post(&pBuf->semNewTask);
+        } 
     }
 
     // Terminate thread and close file
