@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "./include/oppg3.h"
+#include "./include/oppgave_3.h"
 
 static NODE *createNode(char *szName, int iQuantity, float fPrice) {
     NODE *p = malloc(sizeof(NODE));
