@@ -61,8 +61,8 @@ void printPage(char *pszResponseBuffer) {
 
         // Print the last part of the full response
         printf("%s", &pszResponseBuffer[strlen(pszResponseBuffer) - iContentLength]);
+        free(pszHeadBuffer);
     }
-
 }
 
 char* getResponse(int sockFd) {

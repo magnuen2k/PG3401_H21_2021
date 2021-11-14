@@ -41,7 +41,8 @@ int main(int argc, char *argv[]) {
                         printOccurrencesOfAZ(byOutBuffer);
                     }
                 }
-                free (byInBuffer);
+                free(byInBuffer);
+                free(byOutBuffer);
                 fclose(ft);
             }
         }
