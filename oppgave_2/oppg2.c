@@ -16,6 +16,8 @@ int main(int argc, char *argv[]) {
     if (f != NULL) {
         if (fseek(f, 0, SEEK_END) == 0) {
             lSize = ftell(f);
+
+            // Make sure size is even
             lSize -= lSize % 2;
             rewind(f);
 
@@ -26,12 +28,15 @@ int main(int argc, char *argv[]) {
             if (byInBuffer != NULL) {
                 ft = fopen("text.txt", "w");
                 if(ft != NULL) {
-                    lBytesRead = fread (byInBuffer, sizeof(unsigned char), lSize, f);
+                    lBytesRead = fread(byInBuffer, sizeof(unsigned char), lSize, f);
                     if (lBytesRead == lSize) {
                         int i;
+                        // Read two and two characters
                         for (i = 0; i < lSize; i+=2){
                             byOutBuffer[i/2] = hexToInt(byInBuffer[i], byInBuffer[i + 1]);
                         }
+
+                        // Write to file
                         fprintf(ft, "%s", byOutBuffer);
                         printOccurrencesOfAZ(byOutBuffer);
                     }
