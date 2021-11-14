@@ -7,17 +7,17 @@ CFLAGS += -I$(INCLDIR)
 
 OBJDIR = obj
 
-_DEPS = source.h
+_DEPS = oppgave_4.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = oppg4.o
+_OBJS = oppgave_4.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 
 $(OBJDIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
          
-oppg4: $(OBJS)
+oppgave_4: $(OBJS)
 	gcc -o $@ $^ $(CFLAGS)
          
 .PHONY: clean
