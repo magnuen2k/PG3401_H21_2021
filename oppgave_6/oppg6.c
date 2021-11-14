@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     
     sockFd = connectToSocket("77.111.240.75", 80);
 
-    if(sendToSocket(sockFd, pszRequest) >= 0) {
+    if(sockFd != -1 && sendToSocket(sockFd, pszRequest) >= 0) {
         
         // Get the allocated buffer for whats sent over the socket
         pszResponseBuffer = getResponse(sockFd);
@@ -44,12 +44,13 @@ int main(int argc, char *argv[]) {
 void printPage(char *pszResponseBuffer) {
 
     char *pszHeadBuffer = strdup(pszResponseBuffer);
-    char *pszContentLength = strstr(pszHeadBuffer, "Content-Length:");
 
+    // If strdup fail, print the full response
     if (pszHeadBuffer == NULL) {
-        printf("%s", pszHeadBuffer);
+        printf("%s", pszResponseBuffer);
     } else {
         // Get the content length
+        char *pszContentLength = strstr(pszHeadBuffer, "Content-Length:");
         pszContentLength += 16;
         char *pszEol = pszContentLength;
         while (isdigit(*pszEol)) {
@@ -57,6 +58,8 @@ void printPage(char *pszResponseBuffer) {
         }
         *pszEol = 0;
         int iContentLength = atoi(pszContentLength);
+
+        // Print the last part of the full response
         printf("%s", &pszResponseBuffer[strlen(pszResponseBuffer) - iContentLength]);
     }
 
@@ -70,10 +73,13 @@ char* getResponse(int sockFd) {
 
     while((iResponseLength = recv(sockFd, szReadBuffer, sizeof(szReadBuffer) -1, 0)) > 0) {
         szReadBuffer[iResponseLength] = 0;
+
         if(!pszResponseBuffer) {
+            // Allocate the buffer first time we read the response
             pszResponseBuffer = malloc(iResponseLength + 1);
             strcpy(pszResponseBuffer, szReadBuffer);
         } else {
+            // Reallocate and append the string we received
             pszResponseBuffer = realloc(pszResponseBuffer, strlen(pszResponseBuffer) + iResponseLength + 1);
             strcat(pszResponseBuffer, szReadBuffer);
         }
