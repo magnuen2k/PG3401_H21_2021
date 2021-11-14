@@ -4,7 +4,6 @@
 
 #include "./include/oppg3.h"
 
-static void printList (NODE *pThis);
 int getStringFromUser(char *szBuffer, int iSize);
 int getIntFromUser(int *piBuffer);
 int getFloatFromUser(float *pfBuffer);
@@ -28,9 +27,6 @@ int main(int argc, char *argv[]) {
         printf("#4. Total pris for varer lagt i listen\n\r");
         printf("#5. Se kvittering\n\r");
         printf("#6. Avslutte\n\r");
-
-        // For development
-        printList(pListHead->pHead);
 
         input = getchar() - '0';
 
@@ -95,14 +91,32 @@ int main(int argc, char *argv[]) {
 }
 
 int getStringFromUser(char *szBuffer, int iSize) {
-    if(fgets(szBuffer, iSize, stdin) != NULL) {
-        szBuffer[strlen(szBuffer) - 1] = 0;
-        if(strlen(szBuffer) > 0) {
-            return OK;
+
+    char *pBuf = malloc(iSize);
+    int iCurrentSize = iSize;
+    int iFoundEnter = 0;
+    int i = 0;
+
+    *pBuf = 0;
+
+    while(iFoundEnter == 0) {
+        if(fgets(&pBuf[strlen(pBuf)], iCurrentSize - strlen(pBuf), stdin) != NULL) {
+            if (pBuf[strlen(pBuf) - 1] == '\n') {
+                pBuf[strlen(pBuf) - 1] = 0;
+                iFoundEnter = 1;
+
+                strncpy(szBuffer, pBuf, iSize);
+                szBuffer[iSize - 1] = 0;
+                free(pBuf);
+            } else {
+                iCurrentSize += iSize;
+                pBuf = realloc(pBuf, iCurrentSize);
+            }
         }
+        i++;
     }
 
-    return ERROR;
+    return OK;
 }
 
 int getIntFromUser(int *piBuffer) {
@@ -127,12 +141,4 @@ int getFloatFromUser(float *pfBuffer) {
     }
 
     return iRc;
-}
-
-static void printList (NODE *pThis) {
-    int i = 0;
-    while (pThis != NULL) {
-        printf ("%d: %s\n", ++i, pThis->szName);
-        pThis = pThis->pNext;
-    }
 }

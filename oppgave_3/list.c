@@ -16,25 +16,50 @@ static NODE *createNode(char *szName, int iQuantity, float fPrice) {
     return p;
 }
 
+NODE *lookupNamePrice(LISTHEAD *pListHead, char *szName, float fPrice) {
+
+    NODE *pThis = pListHead->pHead;
+
+    while(pThis) {
+
+        if (pThis->fPrice == fPrice && strcasecmp(pThis->szName, szName) == 0) {
+            break;
+        }
+
+        pThis = pThis->pNext;
+    }
+
+    return pThis;
+}
+
 int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, float fPrice) {
     int iRc = ERROR;
-    NODE *pThis = createNode(szName, iQuantity, fPrice);
+    NODE *pThis = lookupNamePrice(pListHead, szName, fPrice);
 
-    if (pThis != NULL) {
+    if(pThis == NULL) {
 
-        if (pListHead->pHead == NULL) {
-            pListHead->pHead = pThis;
-            pListHead->pTail = pThis;
-            iRc = OK;
+        pThis = createNode(szName, iQuantity, fPrice);
+
+        if (pThis != NULL) {
+
+            if (pListHead->pHead == NULL) {
+                pListHead->pHead = pThis;
+                pListHead->pTail = pThis;
+                iRc = OK;
+            }
+            else {
+                pThis->pPrev = pListHead->pTail;
+                pListHead->pTail->pNext = pThis;
+                pListHead->pTail = pThis;
+
+                iRc = OK;
+            }
         }
-        else {
-            pThis->pPrev = pListHead->pTail;
-            pListHead->pTail->pNext = pThis;
-            pListHead->pTail = pThis;
-
-            iRc = OK;
-        }
+    } else {
+        pThis->iQuantity += iQuantity;
+        iRc = OK;
     }
+    
 
     return iRc;
 }
@@ -113,10 +138,10 @@ void printReceipt(LISTHEAD *pListHead) {
     while (p != NULL) {
         printf ("%d: Navn: %s\n", ++i, p->szName);
         printf ("%d: Antall: %d\n", i, p->iQuantity);
-        printf ("%d: Pris per vare: %f\n", i, p->fPrice);
+        printf ("%d: Pris per vare: %.2f\n", i, p->fPrice);
         p = p->pNext;
     }
-    printf("Total sum: %f \n", sumOfGoods(pListHead));
+    printf("Total sum: %.2f \n", sumOfGoods(pListHead));
     printf("------------------------------------ \n");
 }
 
