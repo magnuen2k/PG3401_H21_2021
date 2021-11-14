@@ -9,16 +9,7 @@
 
 #define USERINPUT_BUFFER 4096
 
-typedef struct _BUFFER {
-    char szBuffer[11];
-    FILE *f;
-    sem_t semNewTask;
-    sem_t semTaskCompleted;
-    int iExitProgram;
-} BUFFER;
-
 int main(int argc, char *argv[]) {
-
 
     char szUserInput[USERINPUT_BUFFER] = "";
 
@@ -55,7 +46,10 @@ int main(int argc, char *argv[]) {
                 strncpy(pBuf->szBuffer, &szUserInput[iStart], 10);
                 pBuf->szBuffer[10] = 0;
                 
+                // Signal to worker thread that a new task is ready to be executed
                 sem_post(&pBuf->semNewTask);
+                
+                // Wait for worker thread to finish task
                 sem_wait(&pBuf->semTaskCompleted);
                 
                 iStart += 10;
@@ -64,11 +58,12 @@ int main(int argc, char *argv[]) {
         } else {
             pBuf->iExitProgram = 1;
 
+            // Signal to worker thread that a new task is ready to be executed, this time to just to terminate thread
             sem_post(&pBuf->semNewTask);
         } 
     }
 
-    // Terminate thread and close file
+    // Wait for thread to terminate and close file
     pthread_join(tWorker, NULL);
     fclose(f);
 
@@ -85,7 +80,7 @@ void *workerThread(void *buffer) {
     BUFFER *pBuf = (BUFFER*) buffer;
     while(pBuf->iExitProgram == 0) {
 
-        // Wait for signal to execute work
+        // Wait for signal to execute task
         sem_wait(&pBuf->semNewTask);
 
         // Exit the while loop if exit variable in struct is not 0
@@ -98,6 +93,7 @@ void *workerThread(void *buffer) {
         // Can use fflush to write to file as the program runs
         //fflush(pBuf->f);
 
+        // Signal that task is completed
         sem_post(&pBuf->semTaskCompleted);
     }
     
