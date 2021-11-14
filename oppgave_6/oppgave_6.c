@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 #include <ctype.h>
 
-#include "./include/oppg6.h"
+#include "./include/oppgave_6.h"
 
 #ifdef __linux__
 #include <linux/in.h>
