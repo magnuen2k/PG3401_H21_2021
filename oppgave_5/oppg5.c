@@ -5,6 +5,8 @@
 #include <string.h>
 #include <semaphore.h>
 
+#include "./include/oppg5.h"
+
 #define USERINPUT_BUFFER 4096
 
 typedef struct _BUFFER {
@@ -14,28 +16,6 @@ typedef struct _BUFFER {
     sem_t semTaskCompleted;
     int iExitProgram;
 } BUFFER;
-
-void *workerThread(void *buffer) {
-    
-    BUFFER *pBuf = (BUFFER*) buffer;
-    while(pBuf->iExitProgram == 0) {
-
-        // Wait for signal to execute work
-        sem_wait(&pBuf->semNewTask);
-
-        // Exit the while loop if exit variable in struct is not 0
-        if(pBuf->iExitProgram != 0) {
-            break;
-        }
-
-        fprintf(pBuf->f, "%s", pBuf->szBuffer);
-        //fflush(pBuf->f);
-
-        sem_post(&pBuf->semTaskCompleted);
-    }
-    
-    return NULL;
-}
 
 int main(int argc, char *argv[]) {
 
@@ -68,7 +48,10 @@ int main(int argc, char *argv[]) {
 
             int iStart = 0;
 
+            // Read the whole input
             while(iStart <= (strlen(szUserInput) - 1)) {
+
+                // Copy 10 and 10 bytes for the thread to write to file
                 strncpy(pBuf->szBuffer, &szUserInput[iStart], 10);
                 pBuf->szBuffer[10] = 0;
                 
@@ -95,4 +78,28 @@ int main(int argc, char *argv[]) {
     free(pBuf);
 
     return 0;
+}
+
+void *workerThread(void *buffer) {
+    
+    BUFFER *pBuf = (BUFFER*) buffer;
+    while(pBuf->iExitProgram == 0) {
+
+        // Wait for signal to execute work
+        sem_wait(&pBuf->semNewTask);
+
+        // Exit the while loop if exit variable in struct is not 0
+        if(pBuf->iExitProgram != 0) {
+            break;
+        }
+
+        fprintf(pBuf->f, "%s", pBuf->szBuffer);
+
+        // Can use fflush to write to file as the program runs
+        //fflush(pBuf->f);
+
+        sem_post(&pBuf->semTaskCompleted);
+    }
+    
+    return NULL;
 }
