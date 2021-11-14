@@ -38,8 +38,9 @@ MYHTTP* ProcessHttpHeader(char *pszHttp) {
 
         strchr(pszPtr, '\n')[0] = 0;
 
-        strncpy(pHttp->szServer, pszPtr, 15);
-
+        strncpy(pHttp->szServer, pszPtr, 16);
+        pHttp->szServer[15] = 0;
+        
         pszPtr[strlen(pszPtr)] = '\n';
 
     }
@@ -54,7 +55,8 @@ MYHTTP* ProcessHttpHeader(char *pszHttp) {
 
         strchr(pszPtr, '\n')[0] = 0;
 
-        strncpy(pHttp->szContentType, pszPtr, 15);
+        strncpy(pHttp->szContentType, pszPtr, 16);
+        pHttp->szContentType[15] = 0;
         pszPtr[strlen(pszPtr)] = '\n';
     }
     
