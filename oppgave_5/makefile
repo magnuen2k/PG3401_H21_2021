@@ -8,17 +8,17 @@ LINKEXTRA = -lpthread
 
 OBJDIR = obj
 
-_DEPS = oppg5.h
+_DEPS = oppgave_5.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = oppg5.o
+_OBJS = oppgave_5.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 
 $(OBJDIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
          
-oppg5: $(OBJS)
+oppgave_5: $(OBJS)
 	gcc -o $@ $^ $(CFLAGS) $(LINKEXTRA)
          
 .PHONY: clean

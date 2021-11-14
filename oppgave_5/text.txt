@@ -1,7 +1,3 @@
-jeg skriver en alt for lang streng fordi det er kult
-jsdfhjkh fdh fkshdfk dhjkf dhsfkjdshjkfhdjkfhsdjkfhkjdskf
-kult!!
-hei på deg dette er en lang streng men skal havne på en linje.
-enda en som er lang er den her ja.
-hei på deg dette var en lang streng
-heisann min gode venn
+hei på deg dette er en streng med mer enn 10 karakterer
+en kort
+en lang streng er kult!

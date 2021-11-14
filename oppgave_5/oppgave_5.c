@@ -5,7 +5,7 @@
 #include <string.h>
 #include <semaphore.h>
 
-#include "./include/oppg5.h"
+#include "./include/oppgave_5.h"
 
 #define USERINPUT_BUFFER 4096
 
