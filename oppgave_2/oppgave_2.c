@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "./include/oppg2.h"
+#include "./include/oppgave_2.h"
 
 int main(int argc, char *argv[]) {
 
