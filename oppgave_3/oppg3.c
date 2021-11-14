@@ -81,6 +81,7 @@ int main(int argc, char *argv[]) {
 
     }
 
+    // Free allocated memory
     while(pListHead->pHead) {
         deleteNode(pListHead, pListHead->pHead);
     }

@@ -34,12 +34,16 @@ NODE *lookupNamePrice(LISTHEAD *pListHead, char *szName, float fPrice) {
 
 int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, float fPrice) {
     int iRc = ERROR;
+
+    // Check if node already exists in list with same price
     NODE *pThis = lookupNamePrice(pListHead, szName, fPrice);
 
     if(pThis == NULL) {
 
+        // Create new node
         pThis = createNode(szName, iQuantity, fPrice);
 
+        // Add new node to list
         if (pThis != NULL) {
 
             if (pListHead->pHead == NULL) {
@@ -56,6 +60,7 @@ int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, float fPrice) {
             }
         }
     } else {
+        // Increment quantity if node with same price already in list
         pThis->iQuantity += iQuantity;
         iRc = OK;
     }

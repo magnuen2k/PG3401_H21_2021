@@ -18,6 +18,7 @@ typedef struct _LISTHEAD {
    NODE *pTail;
 } LISTHEAD;
 
+NODE *lookupNamePrice(LISTHEAD *pListHead, char *szName, float fPrice);
 int addToList(LISTHEAD *pListHead, char *szName, int iQuantity, float fPrice);
 void deleteNode(LISTHEAD *pListHead, NODE *pNode);
 int deleteLastNode(LISTHEAD *pListHead);
